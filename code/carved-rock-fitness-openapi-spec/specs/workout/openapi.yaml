@@ -1,0 +1,342 @@
+openapi: "3.1.0"
+info:
+  title: Carved Rock Fitness Workout API
+  summary: Workout API endpoints for Carved Rock Fitness
+  description: |
+    ## Overview
+    The Workout API for Carved Rock Fitness provides access to read and write workout data. It's designed to be RESTful and leverage standard HTTP methods to interact with Workout resources. The API is documented using OpenAPI 3.1, providing a machine-readable description of the API endpoints and data structures. 
+    
+    ## Support Information
+    |                                     |                                                                                     |
+    |-------------------------------------|-------------------------------------------------------------------------------------|
+    | **Development Team**                | Workout Team                                                                        |
+    | **Product Owner**                   | Bob Smith                                                                           |
+    | **Support Contacts**                | workout-team@carvedrockfitness.com                                                  |
+    | **Technical Contact**               | workout-team@carvedrockfitness.com                                                  |
+    
+    ## Security
+    The API is secured using OAuth 2.0 and requires a valid access token to access the endpoints. To receive an API Key, you must contact the Workout Team directly at workout-team@carvedrockfitness.com. 
+    
+    For more information on API security, check out the [API Security Best Practices](https://www.cavedrockfitness.com/api/guides/api-security-best-practices) guide.
+    
+    ## Versioning 
+    The API is versioned to allow for future updates and changes to the API without breaking existing clients.  
+    
+    | **Version** | **Description**                                                                 |
+    |-------------|---------------------------------------------------------------------------------|
+    | v1          | Initial version of the API                                                      |
+    
+    ## Error Handling
+    The API uses a standard set of error responses to indicate when a request has failed. 
+    
+    | **Status Code** | **Description**                                                                 |
+    |-----------------|---------------------------------------------------------------------------------|
+    | 400             | Bad request                                                                     |
+    | 401             | Unauthorized request                                                            |
+    | 403             | Forbidden request                                                               |
+    | 404             | Not found                                                                       |
+    | 409             | Conflict                                                                        |
+    | 500             | Internal server error                                                           |
+  version: v1
+  termsOfService: https://www.pluralsight.com/terms
+  contact:
+    name: Carved Rock Fitness
+    email: mike@michaelhoffmaninc.com
+    url: https://www.pluralsight.com
+  license:
+    name: GNU GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+servers:
+  - url: https://dev.api.carvedrockfitness.com/workout/api/v1
+    description: The development server
+  - url: https://test.api.carvedrockfitness.com/workout/api/v1
+    description: The test server
+  - url: https://api.carvedrockfitness.com/workout/api/v1
+    description: The production server
+tags:
+  - name: Workouts
+    description: Operations related to workouts
+security:
+  - bearerAuth: []
+paths:
+  /workouts:
+    get:
+      tags:
+        - Workouts
+      summary: Get a list of workouts
+      description: Get a list of workouts with optional query parameters to filter the result list
+      operationId: getWorkouts
+      parameters:
+        - $ref: '#/components/parameters/WorkoutNameQueryParameter'
+        - $ref: '#/components/parameters/WorkoutTypeQueryParameter'
+        - $ref: '#/components/parameters/WorkoutDurationQueryParameter'
+        - $ref: '#/components/parameters/WorkoutIntensityQueryParameter'
+        - $ref: '#/components/parameters/WorkoutEquipmentNeededQueryParameter'
+        - $ref: '#/components/parameters/WorkoutTargetMuscleGroupQueryParameter'
+        - $ref: '#/components/parameters/WorkoutCaloriesBurnedQueryParameter'
+      responses:
+        '200':
+          description: A list of workouts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workout'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+    put:
+      tags:
+        - Workouts
+      summary: Update a workout
+      description: Update a workout using the workout values passed in the request body
+      operationId: updateWorkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workout'
+      responses:
+        '200':
+          description: Workout updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Workout updated
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+    post:
+      tags:
+        - Workouts
+      summary: Add a new workout
+      description: Add a new workout using the workout values passed in the request body
+      operationId: addWorkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutInput'
+      responses:
+        '201':
+          description: Workout added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Workout added
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+  /workouts/{workoutId}:
+    get:
+      tags:
+        - Workouts
+      summary: Get a workout by ID
+      description: Get a workout by ID
+      operationId: getWorkoutById
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPathParameter'
+      responses:
+        '200':
+          description: A workout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+    delete:
+      tags:
+        - Workouts
+      summary: Delete a workout
+      description: Delete a workout by ID
+      operationId: deleteWorkout
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPathParameter'
+      responses:
+        '200':
+          description: Workout deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Workout deleted
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+components:
+  schemas:
+    WorkoutInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        duration:
+          type: integer
+          format: int32
+        intensity:
+          type: string
+        equipmentNeeded:
+          type: string
+        targetMuscleGroup:
+          type: string
+        caloriesBurned:
+          type: integer
+          format: int32
+        videoUrl:
+          type: string
+        imageUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+      required:
+        - name
+        - type
+        - duration
+        - intensity
+    Workout:
+      allOf:
+        - $ref: '#/components/schemas/WorkoutInput'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+          required:
+            - id
+  responses:
+    BadRequestResponse:
+      description: The request could not be understood by the server due to malformed syntax
+      content:
+        application/json:
+          example:
+            message: Bad request
+            status: 400
+            error: Bad request
+    ConflictResponse:
+      description: The request could not be completed due to a conflict with the current state of the resource
+      content:
+        application/json:
+          example:
+            message: Conflict
+            status: 409
+            error: Conflict
+    ForbiddenResponse:
+      description: User does not have permission to access the resource or data
+      content:
+        application/json:
+          example:
+            message: Forbidden request
+            status: 403
+            error: Forbidden
+    InternalServerErrorResponse:
+      description: The server has encountered a situation it doesn't know how to handle
+      content:
+        application/json:
+          example:
+            message: Internal server error
+            status: 500
+            error: Internal server error
+    NotFoundResponse:
+      description: The requested resource could not be found
+      content:
+        application/json:
+          example:
+            message: Not found
+            status: 404
+            error: Not found
+    UnauthorizedResponse:
+      description: The request has not been applied because it lacks valid authentication credentials for the target resource
+      content:
+        application/json:
+          example:
+            message: Unauthorized request
+            status: 401
+            error: Unauthorized
+  parameters:
+    WorkoutNameQueryParameter:
+      name: name
+      in: query
+      description: The name of the workout
+      schema:
+        type: string
+        example: "Cardio Blast"
+    WorkoutTypeQueryParameter:
+      name: type
+      in: query
+      description: The type of the workout
+      schema:
+        type: string
+        example: "Cardio"
+    WorkoutDurationQueryParameter:
+      name: duration
+      in: query
+      description: The duration of the workout
+      schema:
+        type: integer
+        format: int32
+        example: 60
+    WorkoutIntensityQueryParameter:
+      name: intensity
+      in: query
+      description: The intensity of the workout
+      schema:
+        type: string
+        example: "High"
+    WorkoutEquipmentNeededQueryParameter:
+      name: equipmentNeeded
+      in: query
+      description: The equipment needed for the workout
+      schema:
+        type: string
+        example: "Treadmill"
+    WorkoutTargetMuscleGroupQueryParameter:
+      name: targetMuscleGroup
+      in: query
+      description: The target muscle group of the workout
+      schema:
+        type: string
+        example: "Legs"
+    WorkoutCaloriesBurnedQueryParameter:
+      name: caloriesBurned
+      in: query
+      description: The calories burned during the workout
+      schema:
+        type: integer
+        format: int32
+        example: 500
+    WorkoutIdPathParameter:
+      name: workoutId
+      in: path
+      description: The ID of the workout
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 12345

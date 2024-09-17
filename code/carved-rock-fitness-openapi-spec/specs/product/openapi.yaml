@@ -1,0 +1,358 @@
+openapi: "3.1.0"
+info:
+  title: Carved Rock Fitness Product API
+  summary: Product API endpoints for Carved Rock Fitness
+  description: |
+    ## Overview
+    The Product API for Carved Rock Fitness provides access to read and write product data. It's designed to be RESTful and leverage standard HTTP methods to interact with Product resources. The API is documented using OpenAPI 3.1, providing a machine-readable description of the API endpoints and data structures. 
+    
+    ## Support Information
+    |                                     |                                                                                     |
+    |-------------------------------------|-------------------------------------------------------------------------------------|
+    | **Development Team**                | Product Team                                                                        |
+    | **Product Owner**                   | Joe Smith                                                                           |
+    | **Support Contacts**                | product-team@carvedrockfitness.com                                                  |
+    | **Technical Contact**               | product-team@carvedrockfitness.com                                                  |
+    
+    ## Security
+    The API is secured using OAuth 2.0 and requires a valid access token to access the endpoints. To receive an API Key, you must contact the Product Team directly at product-team@carvedrockfitness.com. 
+    
+    For more information on API security, check out the [API Security Best Practices](https://www.cavedrockfitness.com/api/guides/api-security-best-practices) guide.
+    
+    ## Versioning 
+    The API is versioned to allow for future updates and changes to the API without breaking existing clients.  
+    
+    | **Version** | **Description**                                                                 |
+    |-------------|---------------------------------------------------------------------------------|
+    | v1          | Initial version of the API                                                      |
+    
+    ## Error Handling
+    The API uses a standard set of error responses to indicate when a request has failed. 
+    
+    | **Status Code** | **Description**                                                                 |
+    |-----------------|---------------------------------------------------------------------------------|
+    | 400             | Bad request                                                                     |
+    | 401             | Unauthorized request                                                            |
+    | 403             | Forbidden request                                                               |
+    | 404             | Not found                                                                       |
+    | 409             | Conflict                                                                        |
+    | 500             | Internal server error                                                           |
+  version: v1
+  termsOfService: https://www.pluralsight.com/terms
+  contact:
+    name: Carved Rock Fitness
+    email: mike@michaelhoffmaninc.com
+    url: https://www.pluralsight.com
+  license:
+    name: GNU GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+servers:
+  - url: https://dev.api.carvedrockfitness.com/product/api/v1
+    description: The development server
+  - url: https://test.api.carvedrockfitness.com/product/api/v1
+    description: The test server
+  - url: https://api.carvedrockfitness.com/product/api/v1
+    description: The production server
+tags:
+  - name: Products
+    description: Operations related to products
+security:
+  - bearerAuth: []
+paths:
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get a list of products
+      description: Get a list of products with optional query parameters to filter the result list
+      operationId: getProducts
+      parameters:
+        - $ref: '#/components/parameters/ProductNameQueryParameter'
+        - $ref: '#/components/parameters/ProductCategoryQueryParameter'
+        - $ref: '#/components/parameters/ProductBrandQueryParameter'
+        - $ref: '#/components/parameters/ProductColorQueryParameter'
+        - $ref: '#/components/parameters/ProductSizeQueryParameter'
+        - $ref: '#/components/parameters/ProductWeightQueryParameter'
+        - $ref: '#/components/parameters/ProductDimensionsQueryParameter'
+        - $ref: '#/components/parameters/ProductSkuQueryParameter'
+        - $ref: '#/components/parameters/ProductUpcQueryParameter'
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+    put:
+      tags:
+        - Products
+      summary: Update a product
+      description: Update a product using the product values passed in the request body
+      operationId: updateProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product updated
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '409':
+          $ref: '#/components/responses/ConflictResponse'
+    post:
+      tags:
+        - Products
+      summary: Add a new product
+      description: Add a new product using the product values passed in the request body
+      operationId: addProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: Product added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product added
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+  /products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get a product by ID
+      description: Get a product by ID
+      operationId: getProductById
+      parameters:
+        - $ref: '#/components/parameters/ProductIdPathParameter'
+      responses:
+        '200':
+          description: A product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+    delete:
+      tags:
+        - Products
+      summary: Delete a product
+      description: Delete a product by ID
+      operationId: deleteProduct
+      parameters:
+        - $ref: '#/components/parameters/ProductIdPathParameter'
+      responses:
+        '200':
+          description: Product deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Product deleted
+        '403':
+          $ref: '#/components/responses/ForbiddenResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundResponse'
+components:
+  schemas:
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+        stock:
+          type: integer
+          format: int32
+        category:
+          type: string
+        brand:
+          type: string
+        color:
+          type: string
+        size:
+          type: string
+        weight:
+          type: number
+          format: float
+        dimensions:
+          type: string
+        sku:
+          type: string
+        upc:
+          type: string
+        image_url:
+          type: string
+      required:
+        - name
+        - category
+        - brand
+        - sku
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/ProductInput'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+          required:
+            - id
+  responses:
+    BadRequestResponse:
+      description: The request could not be understood by the server due to malformed syntax
+      content:
+        application/json:
+          example:
+            message: Bad request
+            status: 400
+            error: Bad request
+    ConflictResponse:
+      description: The request could not be completed due to a conflict with the current state of the resource
+      content:
+        application/json:
+          example:
+            message: Conflict
+            status: 409
+            error: Conflict
+    ForbiddenResponse:
+      description: User does not have permission to access the resource or data
+      content:
+        application/json:
+          example:
+            message: Forbidden request
+            status: 403
+            error: Forbidden
+    InternalServerErrorResponse:
+      description: The server has encountered a situation it doesn't know how to handle
+      content:
+        application/json:
+          example:
+            message: Internal server error
+            status: 500
+            error: Internal server error
+    NotFoundResponse:
+      description: The requested resource could not be found
+      content:
+        application/json:
+          example:
+            message: Not found
+            status: 404
+            error: Not found
+    UnauthorizedResponse:
+      description: The request has not been applied because it lacks valid authentication credentials for the target resource
+      content:
+        application/json:
+          example:
+            message: Unauthorized request
+            status: 401
+            error: Unauthorized
+  parameters:
+    ProductNameQueryParameter:
+      name: productName
+      in: query
+      description: The name of the product
+      schema:
+        type: string
+        example: "Treadmill"
+    ProductCategoryQueryParameter:
+      name: category
+      in: query
+      description: The category of the product
+      schema:
+        type: string
+        example: "Fitness Equipment"
+    ProductBrandQueryParameter:
+      name: brand
+      in: query
+      description: The brand of the product
+      schema:
+        type: string
+        example: "NordicTrack"
+    ProductColorQueryParameter:
+      name: color
+      in: query
+      description: The color of the product
+      schema:
+        type: string
+        example: "Black"
+    ProductSizeQueryParameter:
+      name: size
+      in: query
+      description: The size of the product
+      schema:
+        type: string
+        example: "Large"
+    ProductWeightQueryParameter:
+      name: weight
+      in: query
+      description: The weight of the product
+      schema:
+        type: number
+        format: float
+        example: 100.0
+    ProductDimensionsQueryParameter:
+      name: dimensions
+      in: query
+      description: The dimensions of the product
+      schema:
+        type: string
+        example: "50x25x10"
+    ProductSkuQueryParameter:
+      name: sku
+      in: query
+      description: The SKU of the product
+      schema:
+        type: string
+        example: "12345"
+    ProductUpcQueryParameter:
+      name: upc
+      in: query
+      description: The UPC of the product
+      schema:
+        type: string
+        example: "123456789012"
+    ProductIdPathParameter:
+      name: productId
+      in: path
+      description: The ID of the product
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 12345
